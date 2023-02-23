@@ -1,6 +1,6 @@
 from django.forms import model_to_dict
 from django.shortcuts import render
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
@@ -8,15 +8,64 @@ from rest_framework.views import APIView
 
 from .models import *
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from .serializers import GoodsSerializer
+from .serializers import *
 
 
 # Create your views here.
 
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name']
+
+class GoodsViewSet(viewsets.ModelViewSet):
+    queryset = Goods.objects.all()
+    serializer_class = GoodsSerializer
+
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+                          IsOwnerOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'cat__name']
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    '''def get_queryset(self):
+        pk=self.kwargs.get("pk")
+
+        if not pk:
+            return Goods.objects.all()[:3]
+        else:
+            return Goods.objects.filter(pk=pk)'''
+
+    '''@action(methods=['get'], detail=True)
+    def category(self, request, pk=None):
+        cats = Category.objects.get(pk=pk)
+        return Response({'cats': cats.name})'''
+
+'''class GoodsList(generics.ListCreateAPIView):
+    queryset = Goods.objects.all()
+    serializer_class = GoodsSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class GoodsDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Goods.objects.all()
+    serializer_class = GoodsSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+'''
+'''
 class GoodsAPIList(generics.ListCreateAPIView):
     queryset = Goods.objects.all()
     serializer_class = GoodsSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    #permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 class GoodsAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Goods.objects.all()
@@ -27,6 +76,7 @@ class GoodsAPIDestroy(generics.RetrieveDestroyAPIView):
     queryset = Goods.objects.all()
     serializer_class = GoodsSerializer
     permission_classes = (IsAdminOrReadOnly,)
+'''
 
 
 '''
