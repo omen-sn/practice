@@ -22,12 +22,4 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
 
-'''urlpatterns = [
-    path('api/v1/auth/', include('rest_framework.urls')),
-    path('api/v1/goods/', GoodsList.as_view()),
-    path('api/v1/goods/<int:pk>/', GoodsDetail.as_view()),
-    #path('api/v1/auth/', include('djoser.urls')),
-    #re_path(r'^auth/', include('djoser.urls.authtoken')),
-]'''
-
 #urlpatterns = format_suffix_patterns(urlpatterns)
